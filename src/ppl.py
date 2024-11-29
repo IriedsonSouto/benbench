@@ -78,4 +78,10 @@ if __name__ == "__main__":
 
         # Calcular a perplexidade (PPL)
         ppl_results = calculate_answer_ppl(dataset, model, tokenizer, args.device, output_file_ppl)
-        print(f"{dataset_name} Average_p
+        print(f"{dataset_name} Average_ppl_accuracy: ", ppl_results["mean_perplexity"])
+        results_ppl_summary[f'{dataset_name}'] = ppl_results["mean_perplexity"]
+
+    # Imprimir os resultados resumidos
+    print(f"\nPPL of {args.model_name}")
+    for key, value in results_ppl_summary.items():
+        print(f"{key}: {value}")
