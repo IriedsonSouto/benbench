@@ -28,10 +28,12 @@ def load_model(model_path, device):
     
 
 def load_data_from_jsonl(jsonl_file_name, num_samples=3000):
-    if ("SVAMP" in jsonl_file_name) or ("MMLU" in jsonl_file_name) or ("/MATH/" in jsonl_file_name) or ("MetaMath" in jsonl_file_name):
+    try:
+        # Attempt to load as a standard JSON file
         with open(jsonl_file_name, "r", encoding="utf-8") as f:
             data = json.load(f)
-    else:
+    except json.JSONDecodeError:
+        # If it fails, load as JSONL (line-separated JSON)
         with open(jsonl_file_name, "r", encoding="utf-8") as f:
             data = [json.loads(line) for line in f.readlines()]
 
@@ -42,18 +44,20 @@ def load_data_from_jsonl(jsonl_file_name, num_samples=3000):
     ds = {"question": [], "answer": []}
 
     for item in selected_samples:
-        if ("rewritten" in jsonl_file_name):
-            ds['question'].append(item["rewritten_question"])
-            ds['answer'].append(item["rewritten_answer"])
-        if ("orgn" in jsonl_file_name) and ("GSM8K" in jsonl_file_name):
-            ds['question'].append(item["question"])
-            ds['answer'].append(item["answer"])
-        if ("orgn" in jsonl_file_name) and ("MATH" in jsonl_file_name):
-            # print(jsonl_file_name)
+        if "problem" in item and "solution" in item:
             ds['question'].append(item["problem"])
             ds['answer'].append(item["solution"])
+        elif "rewritten_question" in item and "rewritten_answer" in item:
+            ds['question'].append(item["rewritten_question"])
+            ds['answer'].append(item["rewritten_answer"])
+        elif "question" in item and "answer" in item:
+            ds['question'].append(item["question"])
+            ds['answer'].append(item["answer"])
+        else:
+            print(f"Unrecognized format in item: {item}")
             
     return ds
+
 
 
 def find_subsequence(sequence, subsequence):
