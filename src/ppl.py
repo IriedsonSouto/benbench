@@ -23,7 +23,8 @@ math_dataset_names = [
     "orgn-MATH-test",
 ]
 enem_challenge_dataset_names = [
-    "enem_challenge_rewritten",  # General file
+    "enem_challenge_rewritten-train",
+    "orgn-enem-challenge-train",  
 ]
 
 if __name__ == "__main__":
