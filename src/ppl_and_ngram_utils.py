@@ -4,21 +4,26 @@ from tqdm import tqdm
 import numpy as np
 import json
 import random
-from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM, LlamaForCausalLM
+from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM, LlamaTokenizer, LlamaForCausalLM
+
 import multiprocessing
 from functools import partial
 
 
 def load_model(model_path, device):
-    # if "llama" in model_path:
-    #     model = LlamaForCausalLM.from_pretrained(model_path, trust_remote_code=True)
-    if ("chatglm-6b" in model_path) or ("chatglm3-6b" in model_path):
+    if "llama" in model_path:
+        model = LlamaForCausalLM.from_pretrained(model_path, trust_remote_code=True)
+    elif ("chatglm-6b" in model_path) or ("chatglm3-6b" in model_path):
         model = AutoModel.from_pretrained(model_path, trust_remote_code=True)
+    elif "sabia" in model_path.lower():
+        model = LlamaForCausalLM.from_pretrained(model_path, trust_remote_code=True)
     else:
         model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True)
     
     if "Qwen" in model_path:
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, pad_token='<|endoftext|>')
+    elif "sabia" in model_path.lower():
+        tokenizer = LlamaTokenizer.from_pretrained(model_path, trust_remote_code=True)
     else:
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
     
@@ -192,7 +197,7 @@ def calculate_n_gram_accuracy(n, k, dataset, model, tokenizer, device, output_fi
     #         tokenizer.pad_token = tokenizer.eos_token
     #     else:
     #         print("no special token")
-    if ("deepseek" in output_file) or ("llama" in output_file) or ("GPT" in output_file) or ("phi" in output_file) or ("Baichuan-7B" in output_file) or ("Aquila-7B" in output_file) or ("Mistral" in output_file) or ("loss" in output_file):
+    if ("deepseek" in output_file) or ("llama" in output_file) or ("sabia" in output_file) or ("GPT" in output_file) or ("phi" in output_file) or ("Baichuan-7B" in output_file) or ("Aquila-7B" in output_file) or ("Mistral" in output_file) or ("loss" in output_file):
         if not tokenizer.pad_token:
             if tokenizer.eos_token:
                 tokenizer.pad_token = tokenizer.eos_token
@@ -215,7 +220,7 @@ def calculate_n_gram_accuracy(n, k, dataset, model, tokenizer, device, output_fi
     tokenized_samples = []
     
     for question, answer in zip(dataset['question'], dataset['answer']):
-        if ("hellaswag" in output_file) or ("Truthful" in output_file) or ("MMLU" in output_file):
+        if ("hellaswag" in output_file) or ("Truthful" in output_file) or ("MMLU" in output_file) or ("enem_challenge" in output_file):
             format_text = f"{question}{answer}"
         else:
             format_text = f"{question} {answer}"
@@ -260,7 +265,7 @@ def calculate_n_gram_accuracy(n, k, dataset, model, tokenizer, device, output_fi
             encoding['max_new_tokens'] = n
             encoding['do_sample'] = False
             
-            if ("Mistral" in output_file) or ("Abel-7B-002" in output_file) or ("deepseek" in output_file) or ("phi-2" in output_file) or ("loss" in output_file) or ("llama-3" in output_file):
+            if ("Mistral" in output_file) or ("Abel-7B-002" in output_file) or ("sabia" in output_file) or ("deepseek" in output_file) or ("phi-2" in output_file) or ("loss" in output_file) or ("llama-3" in output_file):
                 gens = model.generate(**encoding, pad_token_id=tokenizer.eos_token_id)
             else:
                 gens = model.generate(**encoding)
