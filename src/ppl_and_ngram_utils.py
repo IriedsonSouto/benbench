@@ -11,18 +11,16 @@ from functools import partial
 
 
 def load_model(model_path, device):
-    if "llama" in model_path:
+    if ("llama" in model_path) or ("sabia" in model_path.lower()):
         model = LlamaForCausalLM.from_pretrained(model_path, trust_remote_code=True)
     elif ("chatglm-6b" in model_path) or ("chatglm3-6b" in model_path):
         model = AutoModel.from_pretrained(model_path, trust_remote_code=True)
-    elif "sabia" in model_path.lower():
-        model = LlamaForCausalLM.from_pretrained(model_path, trust_remote_code=True)
     else:
         model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True)
     
     if "Qwen" in model_path:
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, pad_token='<|endoftext|>')
-    elif "sabia" in model_path.lower():
+    elif ("llama" in model_path) or ("sabia" in model_path.lower()):
         tokenizer = LlamaTokenizer.from_pretrained(model_path, trust_remote_code=True)
     else:
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
@@ -62,7 +60,6 @@ def load_data_from_jsonl(jsonl_file_name, num_samples=3000):
             print(f"Unrecognized format in item: {item}")
             
     return ds
-
 
 
 def find_subsequence(sequence, subsequence):
