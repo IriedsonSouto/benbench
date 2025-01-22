@@ -11,7 +11,7 @@ from functools import partial
 
 
 def load_model(model_path, device):
-    if ("llama" in model_path) or ("sabia" in model_path.lower()):
+    if ("llama" in model_path.lower()) or ("sabia" in model_path.lower()) or ("tucano" in model_path.lower()):
         model = LlamaForCausalLM.from_pretrained(model_path, trust_remote_code=True)
     elif ("chatglm-6b" in model_path) or ("chatglm3-6b" in model_path):
         model = AutoModel.from_pretrained(model_path, trust_remote_code=True)
@@ -20,7 +20,7 @@ def load_model(model_path, device):
     
     if "Qwen" in model_path:
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, pad_token='<|endoftext|>')
-    elif ("llama" in model_path) or ("sabia" in model_path.lower()):
+    elif ("tucano" in model_path.lower()) or ("sabia" in model_path.lower()):
         tokenizer = LlamaTokenizer.from_pretrained(model_path, trust_remote_code=True)
     else:
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
